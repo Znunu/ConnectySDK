@@ -1,6 +1,6 @@
 import discord
 import typing
-
+import json
 
 class MessageLike:
     """
@@ -64,7 +64,7 @@ class Link:
             if self.handler:
                 await self.handler(message)
 
-    def on_message(self, func):
+    def on_message(self, func: typing.Callable):
         """
         Decorator that is called whenever this channel receives a new message.
         """
@@ -103,7 +103,7 @@ class Chain:
         for link in self.links:
             await link.send(message)
 
-    def on_message(self, func):
+    def on_message(self, func: typing.Callable):
         """
         Decorator that is called whenever any channel contained within this chain receives a message.
         """
@@ -123,14 +123,14 @@ class Bot(discord.Client):
         await self.init()
         print('Logged on as {0}!'.format(self.user))
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author == self.user or (int(message.author.discriminator) == 0):
             return
 
         for chain in self.chains:
             await chain.check(message)
 
-    async def register(self, channels: list):
+    async def register(self, channels: list[int]):
         """
         Pass a list of channel IDs.
         A newly created chain (connection) will be returned.
@@ -140,7 +140,9 @@ class Bot(discord.Client):
         self.chains.append(chain)
         return chain
 
-    def configure(self, func):
+
+
+    def configure(self, func: typing.Callable):
         """
         All custom code should be placed within an async function wrapped by this decorator
         """
